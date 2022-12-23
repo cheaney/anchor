@@ -7,16 +7,18 @@ pub mod realloc {
     use super::*;
 
     pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        ctx.accounts.sample.data = vec![0];
+        ctx.accounts.sample.data = vec![0; 100];
         ctx.accounts.sample.bump = *ctx.bumps.get("sample").unwrap();
         Ok(())
     }
 
     pub fn realloc(ctx: Context<Realloc>, len: u16) -> Result<()> {
+        let existing_len = ctx.accounts.sample.data.len();
         ctx.accounts
             .sample
             .data
-            .resize_with(len as usize, Default::default);
+            .resize_with(len as usize + existing_len as usize, Default::default);
+
         Ok(())
     }
 
@@ -44,7 +46,7 @@ pub struct Initialize<'info> {
         payer = authority,
         seeds = [b"sample"],
         bump,
-        space = Sample::space(1),
+        space = Sample::space(100),
     )]
     pub sample: Account<'info, Sample>,
 
@@ -61,7 +63,7 @@ pub struct Realloc<'info> {
         mut,
         seeds = [b"sample"],
         bump = sample.bump,
-        realloc = Sample::space(len as usize),
+        realloc = Sample::space((len as usize) + sample.data.len() as usize),
         realloc::payer = authority,
         realloc::zero = false,
     )]

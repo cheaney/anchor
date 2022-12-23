@@ -28,7 +28,7 @@ describe("realloc", () => {
 
     const samples = await program.account.sample.all();
     assert.lengthOf(samples, 1);
-    assert.lengthOf(samples[0].account.data, 1);
+    assert.lengthOf(samples[0].account.data, 100);
   });
 
   it("fails if delta bytes exceeds permitted limit", async () => {
@@ -50,12 +50,12 @@ describe("realloc", () => {
 
   it("realloc additive", async () => {
     await program.methods
-      .realloc(5)
+      .realloc(10240)
       .accounts({ authority: authority.publicKey, sample })
       .rpc();
 
     const s = await program.account.sample.fetch(sample);
-    assert.lengthOf(s.data, 5);
+    assert.lengthOf(s.data, 10341);
   });
 
   it("realloc substractive", async () => {
